@@ -42,11 +42,22 @@ def get_db_connection():
 
 def main_task():
     print("Starting main task...")
-    with get_db_connection() as conn:
-        print("Database connection established successfully.")
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT version();")
-            print(cursor.fetchone())
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT version();")
+        print(cursor.fetchone())
+        cursor.close()
+    finally:
+        conn.close()
+        connector.close() 
+
+    # print("Starting main task...")
+    # with get_db_connection() as conn:
+    #     print("Database connection established successfully.")
+    #     with conn.cursor() as cursor:
+    #         cursor.execute("SELECT version();")
+    #         print(cursor.fetchone())
 
 # This is the entry point for your Cloud Run Job.
 if __name__ == "__main__":
