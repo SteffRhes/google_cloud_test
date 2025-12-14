@@ -33,7 +33,7 @@ def get_db_connection():
     # The connector.connect method returns a database connection object
     return connector.connect(
         INSTANCE_CONNECTION_NAME,
-        "psycopg2",
+        "psycopg",
         user=POSTGRES_USER,
         password=POSTGRES_PASSWORD,
         db=POSTGRES_DB,

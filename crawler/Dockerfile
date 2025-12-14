@@ -1,5 +1,5 @@
 FROM python:latest
-RUN pip install "psycopg[binary,pool]"
+RUN pip install psycopg2-binary
 RUN pip install cloud-sql-python-connector[pg8000]
 COPY . /app/
 WORKDIR /app
