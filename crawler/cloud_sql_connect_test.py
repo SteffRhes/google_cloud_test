@@ -22,17 +22,11 @@ def main_task():
         print(cursor.fetchone())
 
         cursor.execute("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public' 
-            AND table_type = 'BASE TABLE'
-            ORDER BY table_name;
+            SELECT * FROM prod.willhaben_listings LIMIT 5
         """)
         
-        tables = cursor.fetchall()
-        print("Tables in database:")
-        for table in tables:
-            print(f"  - {table[0]}")        
+        for r in cursor.fetchall():
+            print(r)
     
     conn.close()
 
