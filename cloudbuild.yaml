@@ -1,7 +1,57 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-app', '.']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/my-app']
+# Step 1: Build the container image
+# This step uses the 'docker' builder to build your Dockerfile.
+# The image will be tagged with your project ID, a repository name,
+# your image name, and the specific commit SHA for versioning.
+- id: "Build Image"
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-jobs/google-cloud-test:$COMMIT_SHA', '.']
+
+# Step 2: Push the container image to Artifact Registry
+# This step pushes the image built in the previous step to Artifact Registry.
+# 'europe-west1-docker.pkg.dev' is the host for Artifact Registry in europe-west1.
+# Replace 'cloud-run-jobs' with your desired Artifact Registry repository name.
+- id: "Push Image"
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-jobs/google-cloud-test:$COMMIT_SHA']
+
+# Step 3: Deploy (or update) the Cloud Run Job definition
+# This step deploys the job definition to Cloud Run.
+# It uses the 'gcloud' builder and specifies the image to be used by the job.
+# Note: This *defines* the job; it doesn't run it yet.
+- id: "Deploy Cloud Run Job"
+  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+  entrypoint: gcloud
+  args:
+  - run
+  - jobs
+  - deploy
+  - 'google-cloud-test-job' # This is the name of your Cloud Run Job
+  - --image=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-jobs/google-cloud-test:$COMMIT_SHA
+  - --region=europe-west1 # Ensure this matches your desired region
+  # Add any other job-specific configuration here, e.g.:
+  # - --cpu=1
+  # - --memory=512Mi
+  # - --max-retries=3
+  # - --task-timeout=3600s # 1 hour timeout per task
+
+# Step 4: Execute the Cloud Run Job
+# This step actually runs the job defined in the previous step.
+# The '--wait' flag is important as it makes Cloud Build wait for the job
+# to complete (or fail) before the build step itself finishes.
+- id: "Execute Cloud Run Job"
+  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+  entrypoint: gcloud
+  args:
+  - run
+  - jobs
+  - execute
+  - 'google-cloud-test-job' # Use the same job name as in the deploy step
+  - --region=europe-west1
+  - --wait # Wait for the job to complete
+
+# List the images that are built and pushed by this build process.
+# This makes them visible in the Cloud Build results and Artifact Registry.
 images:
-  - 'gcr.io/$PROJECT_ID/my-app'
+- 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-jobs/google-cloud-test:$COMMIT_SHA'
+
