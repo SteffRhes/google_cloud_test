@@ -1,0 +1,26 @@
+# NEW - Deploys and runs as a Job (Correct for your use case)
+steps:
+# ... (Your existing 'build' and 'push' steps remain the same) ...
+
+# Step 2: Deploy the Cloud Run Job definition
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+  entrypoint: gcloud
+  args:
+  - run
+  - jobs
+  - deploy
+  - 'google-cloud-test-job' # Give your job a name
+  - --image=europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/google_cloud_test/google-cloud-test:$COMMIT_SHA
+  - --region=europe-west1
+
+# Step 3: Execute the Job
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+  entrypoint: gcloud
+  args:
+  - run
+  - jobs
+  - execute
+  - 'google-cloud-test-job' # Use the same job name
+  - --region=europe-west1
+  - --wait # This makes the build step wait until the job is finished
+
