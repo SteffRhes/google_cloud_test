@@ -1,5 +1,5 @@
-import psycopg
 import os
+import psycopg2
 from google.cloud.sql.connector import Connector, IPTypes
 
 
@@ -33,7 +33,7 @@ def get_db_connection():
     # The connector.connect method returns a database connection object
     return connector.connect(
         INSTANCE_CONNECTION_NAME,
-        "psycopg",
+        "psycopg2",
         user=POSTGRES_USER,
         password=POSTGRES_PASSWORD,
         db=POSTGRES_DB,
