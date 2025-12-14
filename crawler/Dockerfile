@@ -1,6 +1,6 @@
 FROM python:latest
 RUN pip install "psycopg[binary,pool]"
+COPY . /app/
 WORKDIR /app
-#wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
-#chmod +x cloud_sql_proxy
+CMD ["python", "/app/cloud_sql_connect_test.py"]
 
