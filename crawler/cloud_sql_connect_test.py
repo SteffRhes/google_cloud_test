@@ -20,6 +20,19 @@ def main_task():
     with conn.cursor() as cursor:
         cursor.execute("SELECT version();")
         print(cursor.fetchone())
+
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            AND table_type = 'BASE TABLE'
+            ORDER BY table_name;
+        """)
+        
+        tables = cursor.fetchall()
+        print("Tables in database:")
+        for table in tables:
+            print(f"  - {table[0]}")        
     
     conn.close()
 
